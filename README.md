@@ -51,5 +51,5 @@ It is a tool for running a bunch of different containers. We give it some config
 2. Written in YAML Syntax (Like JSON, with less curly braces)
 3. Always store these files with our project source code - they are documentation
 4. We can create Objects without config files - do not do this. Config files provide a precise definition of what your cluster is running
-5. Kubernetes docs will tell you to run direct commands to create objects - only do this for testing purposes
-6. Blog posts will tell you to run direct commands to create objects - close the Blog post!
+    1. Kubernetes docs will tell you to run direct commands to create objects - only do this for testing purposes
+    2. Blog posts will tell you to run direct commands to create objects - close the Blog post!
