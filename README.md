@@ -1,30 +1,38 @@
 # What is a Microservice?
 A monolith server contains Routing, Middlewares, Business Logic and DB access to implement all features of our app. A single microservice server contains Routing, Middlewares, Business Logic and DB access to implement one feature of our app
+
 # What is the big challenge with Microservices?
 1. Data Management between services
 2. Each service gets its own database (if it needs one)
 3. Service will never, ever reach into another services database
+
 # Why Database-Per-Service?
 1. We want each service to run independently of other services
 2. DB schema / structure might change unexpectedly
 3. Some services might function more efficiently with different types of DB’s (sql vs nosql)
+
 # Communication strategies between services
 ## Sync
 Services communicate with each other using direct requests
 ## Async
 Services communicate with each other using events
+
 # Merits of Sync Communication:
 Conceptually easy to understand
+
 # Demerits of Sync Communication:
 Introduces a dependency between services
 If any inter-service request fails, the overall request fails
 The entire request is only as fast as the slowest request
 Can easily introduce webs of requests
+
 # Async Communication
 Just like the db-per-service pattern, async communication is going to seem bizarre and inefficient
+
 # Merits of Async Communication:
 1. Zero dependencies on other services
 2. Service will be extremely fast
+
 # Demerits of Async Communication:
 1.Data duplication
 2. Harder to understand
@@ -161,3 +169,4 @@ It is a tool for running a bunch of different containers. We give it some config
 5. Run the command: kubectl rollout restart deployment <deploymentFileName>
 
 # Networking with Services
+
