@@ -89,3 +89,75 @@ It is a tool for running a bunch of different containers. We give it some config
 4. We can create Objects without config files - do not do this. Config files provide a precise definition of what your cluster is running
     1. Kubernetes docs will tell you to run direct commands to create objects - only do this for testing purposes
     2. Blog posts will tell you to run direct commands to create objects - close the Blog post!
+
+# Creating a pod
+1. docker build -t <dockerId/projectName>:<version> . ex: ashwin2604/posts:0.0.1
+2. Create another folder called "infra" to hold all config files
+3. Within this folder create another folder called "k8s". This will contain all kubernetes related configuration files
+4. Within k8s folder create a file called "posts.yaml" (posts.yaml.example)
+5. Add data as shown in the file
+6. Run command inside k8s folder: 
+    1. kubectl apply -f posts.yaml (filename)
+    2. kubectl get pods --> shows all pods available
+
+    If your pods are showing ErrImagePull, ErrImageNeverPull or ImagePullBackOff errors after running kubectl apply, the simplest solution is to provide an imagePullPolicy to the pod.
+    First, run kubectl delete -f infra/k8s/
+    Then, update your pod manifest:
+    spec:
+      containers:
+        - name: posts
+          image: ashwin2604/posts
+          imagePullPolicy: Never
+
+    Then, run kubectl apply -f infra/k8s/
+    This will ensure that Kubernetes will use the image built locally from your image cache instead of attempting to pull from a registry.
+    Minikube users:
+        If you are using a vm driver, you will need to tell Kubernetes to use the Docker daemon running inside of the single node cluster instead of the host
+        Run the following command:
+        eval $(minikube docker -env)
+        Note - This command will need to be repeated anything you close and restart the terminal session.
+        Afterwards, you can build your image:
+        docker build -t USERNAME/REPO .
+        Update, your pod manifest as show and then run: kubectl apply -f infra/k8s/
+        https://minikube.sigs.k8s.io/docs/commands/docker-env/
+
+# .yaml file configuration details
+1. apiVersion: v1 --> k8s is extensible: we can add in our own custom objects. This specifies the set of objects we want k8s to look at
+2. kind: Pod --> The type of objects we want to create
+3. metadata: --> Config options for the object we are about to create
+4. name: posts --> when the pod is created, give it a name of posts
+5. spec: --> The exact attributes we want to apply to the object we are about to create
+6. containers: --> We can create many containers i a single pod
+7. - name: posts --> Make a container with a name of posts
+8. image: ashwin2604/posts:0.0.1 --> The exact image we want to use, this is the name of the image we created using docker build command
+
+# Common kubectl commands:
+1. docker ps --> kubectl get pods : Print out information about all of the running pods
+2. docker exec -it <containerId> <cmd> --> kubectl exec -it <podName> <cmd> : Execute the given command in a running pod
+3. docker logs <containerId> --> kubectl logs <podName> : Print out logs from the given pod
+4. kubectl delete pod <podName> : Deletes the given pod
+5. kubectl apply -f <configFileName> : Tells kubernetes to process the config
+6. kubectl describe pod <podName> : Print out some information about the running pod
+
+# Deployment
+
+1. Create posts-depl.yaml file inside k8s folder
+2. Add code as shown in that file
+3. kubectl get deployments : List all the running deployments
+4. kubectl describe deployment <deploymentName> : Print out details about a specific deployment
+5. kubectl delete deployment <deploymentName> : Delete a deployment
+
+# Updating the image used by a Deployment - Method 1
+1. Make a change to your project code
+2. Rebuild the image, specify a new image version
+3. In the deployment config file, update the version of the image
+4. Run the command: kubectl apply -f <deploymentFileName>
+
+# Updating the image used by a Deployment - Method 2 (Most used)
+1. The deployment must be using the "latest" tag in the pod spec section
+2. Make an update to your code
+3. Build the image
+4. Push the image to docker hub
+5. Run the command: kubectl rollout restart deployment <deploymentFileName>
+
+# Networking with Services
