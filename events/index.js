@@ -14,18 +14,22 @@ app.post('/events', (req, res) => {
 
     events.push(event)
 
-    axios.post("http://localhost:4000/events", event).catch((err) => {
+    /* requesting to kubernetes service URL instead of localhost */
+    /* axios.post("http://localhost:4000/events", event).catch((err) => {
         console.log(err.message);
-    });
-    axios.post("http://localhost:4001/events", event).catch((err) => {
-        console.log(err.message);
-    });
-    axios.post("http://localhost:4002/events", event).catch((err) => {
-        console.log(err.message);
-    });
-    axios.post("http://localhost:4003/events", event).catch((err) => {
-        console.log(err.message);
-    });
+    }); */
+    /*  axios.post("http://posts-clusterip-srv:4000/events", event).catch((err) => {
+         console.log(err.message);
+     });
+     axios.post("http://localhost:4001/events", event).catch((err) => {
+         console.log(err.message);
+     });
+     axios.post("http://localhost:4002/events", event).catch((err) => {
+         console.log(err.message);
+     });
+     axios.post("http://localhost:4003/events", event).catch((err) => {
+         console.log(err.message);
+     }); */
     /* Additional comments servers */
     /* axios.post("http://localhost:4006/events", event).catch((err) => {
         console.log(err.message);

@@ -169,4 +169,56 @@ It is a tool for running a bunch of different containers. We give it some config
 5. Run the command: kubectl rollout restart deployment <deploymentFileName>
 
 # Networking with Services
+### Types of Services:
+  1. Cluster IP: Sets up an easy-to-remember URL to access a pod. Only exposes pod to pods in the cluster
+  2. Node Port: Makes a pod accessible from outside the cluster. Usually used for dev purposes
+  3. Load Balancer: Makes a pod accessible from outside the cluster. This is the right way to expose a pod to the outside world
+  4. External Name: Redirects an in-cluster request to a CNAME URL.
 
+# Creating a Node Port Service
+1. Create a file named "posts-srv.yaml" within k8s folder and add the config as shown
+2. kubectl apply -f posts-srv.yaml --> Run this command to create a node port service
+3. kubectl get services --> This will give us the list of services available, this will give us the port of our services as well, this port will be between the range 30000 to 32000
+4. kubectl describe service posts-srv
+5. Open the browser and search for URL: http://localhost:<PORT YOU GOT>/posts, this will return an empty object
+
+# Creating a Cluster IP Service and Deployment for the Event Bus
+#### Goals:
+  1. Build an image for the Event Bus
+  2. Push the image to Docker Hub
+  3. Create a deployment for the Event Bus
+  4. Create a Cluster IP Service for Event Bus and Posts
+
+1. docker build -t ashwin2604/event-bus . --> run this command inside events folder
+2. docker push ashwin2604/event-bus
+3. Create a file named "event-bus-depl.yaml" inside k8s folder and config as shown in that file
+4. kubectl apply -f event-bus-depl.yaml --> run this command inside k8s folder
+5. kubectl get pods
+6. Add lines after --- in event-bus-depl.yaml file
+7. kubectl apply -f event-bus-depl.yaml
+8. kubectl get services
+9. Add lines after --- in posts-depl.yaml file
+10. kubectl apply -f posts-depl.yaml
+11. kubectl get services
+
+# How to communicate between services
+1. Go to index.js file in posts, update event URL
+2. Go to index.js file in events, update posts event URL
+
+## Updating the Image used by a deployment - Method #2
+  1. The deployment must be using the "latest" tag in the pod spec section of the
+  2. Make an update to your code
+  3. Build the image
+  4. Push the image to docker hub
+  5. Run the command: kubectl rollout restart deployment <deployment_name>
+
+1. docker build -t ashwin2604/event-bus . --> run this command inside events folder
+2. docker push ashwin2604/event-bus
+3. docker build -t ashwin2604/posts . --> run this command inside posts folder
+4. docker push ashwin2604/posts
+5. kubectl rollout restart deployment posts-depl
+6. kubectl rollout restart deployment event-bus-depl
+7. kubectl get pods
+8. In postman or thunder client, post request to http://localhost:31495/posts --> header: 'Content-Type: application/json' and body: '{"title": "Any name"}' --> This will create a new post
+
+# Adding Query, Moderation and Comments
