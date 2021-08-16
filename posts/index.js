@@ -17,7 +17,7 @@ app.get('/posts', (req, res) => {
     res.status(200).send(posts)
 })
 
-app.post('/posts', async (req, res) => {
+app.post('/posts/create', async (req, res) => {
     const id = randomBytes(4).toString('hex')
     const { title } = req.body
 
@@ -41,7 +41,7 @@ app.post('/posts', async (req, res) => {
 
 app.post("/events", (req, res) => {
     /* events coming from event bus */
-    console.log(req.body.type)
+    console.log('Received Event', req.body.type);
     res.send({})
 })
 

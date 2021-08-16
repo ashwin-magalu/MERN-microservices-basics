@@ -222,3 +222,93 @@ It is a tool for running a bunch of different containers. We give it some config
 8. In postman or thunder client, post request to http://localhost:31495/posts --> header: 'Content-Type: application/json' and body: '{"title": "Any name"}' --> This will create a new post
 
 # Adding Query, Moderation and Comments
+## Add More Services:
+  1. For comments, query and moderation
+  2. Update the URL's in each to reach out to the "event-bus-srv"
+  3. Build images + push them to docker hub
+  4. Create a deployment + clusterIp service for each
+  5. Update the event-bus to once again send the events to comments, query and moderation
+
+Run these commands in their respective directories:
+  1. docker build -t ashwin2604/comments . (or) ashwin2604/moderation . (or) ashwin2604/query .
+  2. docker push ashwin2604/comments (or) ashwin2604/moderation (or) ashwin2604/query
+  3. Create respective .yaml files in k8s
+  4. Run these in k8s folder
+    1. kubectl apply -f . 
+    2. kubectl get pods
+    3. kubectl get services
+  5. Update these new URL's instead of localhost in events index.js file
+  6. Run these commands in events directory
+    1. docker build -t ashwin2604/event-bus .
+    2. docker push ashwin2604/event-bus
+    3. kubectl get deployments
+    4. kubectl rollout restart deployment event-bus-depl
+    5. kubectl get pods
+
+# Load Balancer Services
+React App --> Load Balancer Service <---> ClusterIp --> Pod --> Posts
+                                      |-> ClusterIp --> Pod --> Comments
+                                      |-> ClusterIp --> Pod --> Query
+                                      |-> ClusterIp --> Pod --> Moderation
+                                      |-> Pod --> Event Bus
+                                      |-> Pod --> React App Dev Server
+
+# Load Balancers and Ingress
+  Load Balancer Service: 
+    Tells kubernetes to reach out to its provider and provision a load balancer. Gets traffic into a single pod
+
+  Ingress or Ingress Controller: 
+    A pod with a set of routing rules to distribute the traffic to other services
+
+# Update to Ingress Nginx
+  https://kubernetes.github.io/ingress-nginx/deploy/#provider-specifi-steps
+
+# Installing Ingress - Nginx
+ingress-nginx --> package --> Project that will create a Load Balancer Service + an Ingress for us
+
+We are using "ingress-nginx", there is another project that does the same thing with an almost identical name. --> "kubernetes-ingress".
+
+Open this link to know more: https://github.com/nginxinc/kubernetes-ingress , https://github.com/kubernetes/ingress-nginx & https://kubernetes.github.io/ingress-nginx/deploy/
+
+Run this command: 
+  1. kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
+  2. kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.48.1/deploy/static/provider/cloud/deploy.yaml
+  3. kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/cloud-generic.yaml
+
+Ingress Documentation: https://kubernetes.io/docs/concepts/services-networking/ingress/
+
+# Writing ingress config files:
+1. Create a file named ingress-srv.yaml inside k8s folder and add data as shown in the file
+2. Run the command "kubectl apply -f ingress-srv.yaml"
+3. Run the command "netstat -aon | findstr :80" to find whether any service is running in port 80
+4. Open following file from the location: C:\Windows\System32\Drivers\etc\hosts and add the following line at the end of the file: 127.0.0.1 posts.com
+5. In browser open posts.com/posts, this should return object containing posts which we posted earlier
+
+# Deploying the react app
+1. open CommentCreate.js file in CLient, change axios.post URL from localhost:4001 to posts.com, do the same in PostCreate.js and PostList.js files
+2. Create an image and deploy it: 
+  1. docker build -t ashwin2604/client .
+  2. docker push ashwin2604/client
+3. Go to k8s folder and create a file named: client-depl.yaml
+4. kubectl apply -f client-depl.yaml
+
+# Unique Route Paths:
+1. Edit files, rebuild image and post it. Then rollout using kubectl
+  1. docker build -t ashwin2604/client .
+  2. docker push ashwin2604/client
+  3. kubectl rollout restart deployment client-depl
+2. Update paths in ingress-srv.yaml
+3. kubectl apply -f ingress-srv.yaml
+4. Open posts.com URL
+
+# Skaffold
+1. Automates many tasks in a Kubernetes dev environment
+2. Makes it really easy to update code in a running pod
+3. Makes it really easy to create/delete all objects tied to a project at once
+4. https://skaffold.dev
+5. https://skaffold-staging.web.app/docs/install/ --> Follow steps shown here to install skaffold. Run the commands in Powershell as an administrator
+6. Run the command "skaffold" to check whether the installation is done properly
+
+# Skaffold setup
+1. Create a file named "skaffold.yaml" in the root directory and add the config as shown in that file
+2. Run a command: skaffold dev
